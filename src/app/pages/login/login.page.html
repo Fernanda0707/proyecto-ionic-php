@@ -1,0 +1,54 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Iniciar Sesión</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="login-wrapper ion-padding">
+    <div class="header-section ion-text-center ion-margin-bottom">
+      <ion-icon name="person-circle-outline" class="login-avatar"></ion-icon>
+      <h2>Bienvenido</h2>
+      <p class="ion-text-muted">Ingresa tus credenciales para continuar</p>
+    </div>
+
+    <form (submit)="onLogin(emailInput.value, passwordInput.value); $event.preventDefault()">
+      <ion-item lines="none" class="custom-input-item">
+        <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
+        <ion-input 
+          #emailInput
+          label="Correo electrónico"
+          labelPlacement="floating"
+          type="email" 
+          name="email"
+          value="admin@example.com"
+          required>
+        </ion-input>
+      </ion-item>
+
+      <ion-item lines="none" class="custom-input-item ion-margin-top">
+        <ion-icon name="lock-closed-outline" slot="start" color="primary"></ion-icon>
+        <ion-input 
+          #passwordInput
+          label="Contraseña"
+          labelPlacement="floating"
+          type="password" 
+          name="password"
+          value="Admin123!"
+          required>
+        </ion-input>
+      </ion-item>
+
+      <div class="ion-padding-top ion-margin-top">
+        <ion-button 
+          expand="block" 
+          shape="round"
+          type="submit" 
+          [disabled]="loading">
+          <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+          <span *ngIf="!loading">Ingresar</span>
+        </ion-button>
+      </div>
+    </form>
+  </div>
+</ion-content>

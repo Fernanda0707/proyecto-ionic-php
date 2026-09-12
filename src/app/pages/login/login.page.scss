@@ -1,0 +1,38 @@
+.login-wrapper {
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 80%;
+}
+
+.header-section {
+  .login-avatar {
+    font-size: 84px;
+    color: var(--ion-color-primary);
+  }
+
+  h2 {
+    font-weight: 700;
+    margin-top: 8px;
+    margin-bottom: 4px;
+  }
+
+  p {
+    font-size: 14px;
+    margin: 0;
+  }
+}
+
+.custom-input-item {
+  --background: var(--ion-color-step-50, #f8f9fa);
+  --border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+ion-button {
+  --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.3);
+  font-weight: 600;
+  height: 46px;
+}

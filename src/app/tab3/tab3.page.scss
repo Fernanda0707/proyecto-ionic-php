@@ -1,0 +1,15 @@
+.profile-card {
+  background: var(--ion-color-step-50, #f8f9fa);
+  border-radius: 12px;
+  margin-top: 20px;
+
+  .avatar-icon {
+    font-size: 96px;
+    color: var(--ion-color-primary);
+  }
+
+  h2 {
+    font-weight: 700;
+    margin: 8px 0 4px;
+  }
+}

@@ -1,17 +1,140 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 1
-    </ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>Registro</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="form-content">
+  <div class="msform-wrapper">
+    <!-- Barra de progreso -->
+    <ul class="progressbar">
+      <li 
+        *ngFor="let step of steps; let i = index" 
+        [class.active]="i <= currentStep">
+        {{ step }}
+      </li>
+    </ul>
 
-  <app-explore-container name="Tab 1 page"></app-explore-container>
+    <!-- Paso 1: Configuración de cuenta -->
+    <div class="form-step" *ngIf="currentStep === 0">
+      <h2 class="fs-title">Create your account</h2>
+      <h3 class="fs-subtitle">This is step 1</h3>
+
+      <ion-item lines="none" class="input-item">
+        <ion-input 
+          type="email" 
+          placeholder="Email" 
+          [(ngModel)]="formData.email">
+        </ion-input>
+      </ion-item>
+
+      <ion-item lines="none" class="input-item">
+        <ion-input 
+          type="password" 
+          placeholder="Password" 
+          [(ngModel)]="formData.pass">
+        </ion-input>
+      </ion-item>
+
+      <ion-item lines="none" class="input-item">
+        <ion-input 
+          type="password" 
+          placeholder="Confirm Password" 
+          [(ngModel)]="formData.cpass">
+        </ion-input>
+      </ion-item>
+
+      <div class="actions">
+        <ion-button expand="block" class="action-btn" (click)="nextStep()">
+          Next
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Paso 2: Perfiles sociales -->
+    <div class="form-step" *ngIf="currentStep === 1">
+      <h2 class="fs-title">Social Profiles</h2>
+      <h3 class="fs-subtitle">Your presence on the social network</h3>
+
+      <ion-item lines="none" class="input-item">
+        <ion-input 
+          type="text" 
+          placeholder="Twitter" 
+          [(ngModel)]="formData.twitter">
+        </ion-input>
+      </ion-item>
+
+      <ion-item lines="none" class="input-item">
+        <ion-input 
+          type="text" 
+          placeholder="Facebook" 
+          [(ngModel)]="formData.facebook">
+        </ion-input>
+      </ion-item>
+
+      <ion-item lines="none" class="input-item">
+        <ion-input 
+          type="text" 
+          placeholder="Google Plus" 
+          [(ngModel)]="formData.gplus">
+        </ion-input>
+      </ion-item>
+
+      <div class="actions button-row">
+        <ion-button fill="outline" class="action-btn prev-btn" (click)="previousStep()">
+          Previous
+        </ion-button>
+        <ion-button class="action-btn" (click)="nextStep()">
+          Next
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Paso 3: Detalles personales -->
+    <div class="form-step" *ngIf="currentStep === 2">
+      <h2 class="fs-title">Personal Details</h2>
+      <h3 class="fs-subtitle">We will never sell it</h3>
+
+      <ion-item lines="none" class="input-item">
+        <ion-input 
+          type="text" 
+          placeholder="First Name" 
+          [(ngModel)]="formData.fname">
+        </ion-input>
+      </ion-item>
+
+      <ion-item lines="none" class="input-item">
+        <ion-input 
+          type="text" 
+          placeholder="Last Name" 
+          [(ngModel)]="formData.lname">
+        </ion-input>
+      </ion-item>
+
+      <ion-item lines="none" class="input-item">
+        <ion-input 
+          type="tel" 
+          placeholder="Phone" 
+          [(ngModel)]="formData.phone">
+        </ion-input>
+      </ion-item>
+
+      <ion-item lines="none" class="input-item">
+        <ion-textarea 
+          placeholder="Address" 
+          [(ngModel)]="formData.address" 
+          rows="3">
+        </ion-textarea>
+      </ion-item>
+
+      <div class="actions button-row">
+        <ion-button fill="outline" class="action-btn prev-btn" (click)="previousStep()">
+          Previous
+        </ion-button>
+        <ion-button class="action-btn submit-btn" (click)="submitForm()">
+          Submit
+        </ion-button>
+      </div>
+    </div>
+  </div>
 </ion-content>

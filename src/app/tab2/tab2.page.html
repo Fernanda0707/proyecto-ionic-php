@@ -1,31 +1,65 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title> Photo Gallery </ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-title>Usuarios del Sistema</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="loadUsers()">
+        <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Photo Gallery</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding" style="--background: #f4f5f8;">
+  <div *ngIf="loading" class="ion-text-center ion-padding" style="margin-top: 40px;">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p style="color: #666; font-size: 14px;">Consultando registros en MySQL...</p>
+  </div>
 
-  <ion-grid>
-    <ion-row>
-      @for (photo of photoService.photos(); track photo.filepath; let position = $index) {
-      <ion-col size="6">
-        <button (click)="showActionSheet(photo, position)">
-          <img [src]="photo.webviewPath" [attr.alt]="'Photo ' + (position + 1)" loading="lazy" />
-        </button>
-      </ion-col>
-      }
-    </ion-row>
-  </ion-grid>
+  <ion-card *ngIf="!loading && users.length > 0" style="border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin: 0;">
+    <ion-list lines="inset">
+      <ion-item *ngFor="let user of users" style="--padding-start: 16px;">
+        <ion-avatar slot="start" style="width: 44px; height: 44px; background: #e3f2fd; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+          <ion-icon name="person-outline" style="font-size: 24px; color: #1976d2;"></ion-icon>
+        </ion-avatar>
+        <ion-label>
+          <h2 style="font-weight: 600; font-size: 16px; margin-bottom: 4px;">{{ user.name }}</h2>
+          <p style="color: #666; font-size: 14px;">{{ user.email }}</p>
+        </ion-label>
+        <ion-badge slot="end" [color]="user.role === 'admin' ? 'primary' : 'medium'" style="padding: 6px 10px; font-size: 12px; text-transform: uppercase;">
+          {{ user.role }}
+        </ion-badge>
+      </ion-item>
+    </ion-list>
+  </ion-card>
 
-  <ion-fab vertical="bottom" horizontal="center" slot="fixed">
-    <ion-fab-button (click)="addPhotoToGallery()">
-      <ion-icon name="camera"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+  <ion-card *ngIf="!loading && users.length === 0" class="ion-text-center ion-padding" style="border-radius: 12px;">
+    <ion-icon name="alert-circle-outline" style="font-size: 48px; color: #ffa000;"></ion-icon>
+    <h3>Sin registros</h3>
+    <p style="color: #666;">No hay usuarios cargados en la base de datos.</p>
+  </ion-card>
 </ion-content>
+
+<ion-footer>
+  <ion-toolbar color="light" style="border-top: 1px solid #e0e0e0;">
+    <ion-grid style="padding: 0;">
+      <ion-row>
+        <ion-col size="6" class="ion-text-center">
+          <ion-button fill="clear" expand="block" routerLink="/tab2" routerDirection="root" color="primary">
+            <div style="display: flex; flex-direction: column; align-items: center;">
+              <ion-icon name="people-outline" style="font-size: 20px;"></ion-icon>
+              <span style="font-size: 11px; margin-top: 2px;">Usuarios</span>
+            </div>
+          </ion-button>
+        </ion-col>
+        <ion-col size="6" class="ion-text-center">
+          <ion-button fill="clear" expand="block" routerLink="/tab3" routerDirection="root" color="medium">
+            <div style="display: flex; flex-direction: column; align-items: center;">
+              <ion-icon name="person-outline" style="font-size: 20px;"></ion-icon>
+              <span style="font-size: 11px; margin-top: 2px;">Perfil</span>
+            </div>
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-toolbar>
+</ion-footer>

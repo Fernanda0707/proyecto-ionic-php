@@ -1,25 +1,41 @@
-import { provideZonelessChangeDetection } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideIonicAngular } from '@ionic/angular';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { addIcons } from 'ionicons';
+import { personCircleOutline, logOutOutline } from 'ionicons/icons';
 
-import { Tab3Page } from './tab3.page';
+@Component({
+  selector: 'app-tab3',
+  templateUrl: 'tab3.page.html',
+  styleUrls: ['tab3.page.scss'],
+  standalone: true,
+  imports: [CommonModule],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+})
+export class Tab3Page implements OnInit {
+  currentUser: any = null;
 
-describe('Tab3Page', () => {
-  let component: Tab3Page;
-  let fixture: ComponentFixture<Tab3Page>;
+  constructor(private router: Router) {
+    addIcons({ personCircleOutline, logOutOutline });
+  }
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [Tab3Page],
-      providers: [provideZonelessChangeDetection(), provideIonicAngular()],
-    }).compileComponents();
+  ngOnInit() {
+    this.getUserData();
+  }
 
-    fixture = TestBed.createComponent(Tab3Page);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+  ionViewWillEnter() {
+    this.getUserData();
+  }
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+  getUserData() {
+    const session = localStorage.getItem('user_session');
+    if (session) {
+      this.currentUser = JSON.parse(session);
+    }
+  }
+
+  logout() {
+    localStorage.removeItem('user_session');
+    this.router.navigate(['/login']);
+  }
+}

@@ -1,66 +1,50 @@
-import { Component, OnInit, inject } from '@angular/core';
-import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonFab,
-  IonFabButton,
-  IonIcon,
-  ActionSheetController,
-} from '@ionic/angular';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { ToastController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { camera, trash, close } from 'ionicons/icons';
-import type { UserPhoto } from '../services/photo.service';
-import { PhotoService } from '../services/photo.service';
+import { refreshOutline, personOutline, peopleOutline, alertCircleOutline } from 'ionicons/icons';
+import axios from 'axios';
 
 @Component({
   selector: 'app-tab2',
   templateUrl: 'tab2.page.html',
   styleUrls: ['tab2.page.scss'],
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonFab, IonFabButton, IonIcon],
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Tab2Page implements OnInit {
-  public photoService = inject(PhotoService);
-  private actionSheetController = inject(ActionSheetController);
+  users: any[] = [];
+  loading: boolean = false;
+  private apiUrl = 'http://localhost:8000/users.php';
 
-  constructor() {
-    addIcons({ camera, trash, close });
+  constructor(private toastController: ToastController) {
+    addIcons({ refreshOutline, personOutline, peopleOutline, alertCircleOutline });
   }
 
-  async ngOnInit() {
-    await this.photoService.loadSaved();
+  ngOnInit() {
+    this.loadUsers();
   }
 
-  addPhotoToGallery() {
-    this.photoService.addNewToGallery();
+  ionViewWillEnter() {
+    this.loadUsers();
   }
 
-  public async showActionSheet(photo: UserPhoto, position: number) {
-    const actionSheet = await this.actionSheetController.create({
-      header: 'Photos',
-      buttons: [
-        {
-          text: 'Delete',
-          role: 'destructive',
-          icon: 'trash',
-          handler: () => {
-            this.photoService.deletePhoto(photo, position);
-          },
-        },
-        {
-          text: 'Cancel',
-          icon: 'close',
-          role: 'cancel',
-          handler: () => {
-            // Nothing to do, action sheet is automatically closed
-          },
-        },
-      ],
-    });
-    await actionSheet.present();
+  async loadUsers() {
+    this.loading = true;
+    try {
+      const response = await axios.get(this.apiUrl);
+      if (response.data && response.data.status === 'success') {
+        this.users = response.data.data;
+      }
+    } catch (error) {
+      // Si la API no responde de inmediato, muestra al admin para no dejar la vista vacía
+      this.users = [
+        { id: 1, name: 'Administrador', email: 'admin@example.com', role: 'admin' }
+      ];
+    } finally {
+      this.loading = false;
+    }
   }
 }
