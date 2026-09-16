@@ -1,23 +1,27 @@
-CREATE DATABASE IF NOT EXISTS app_database CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE app_database;
+-- Creación de la base de datos para el sistema de inventario
+CREATE DATABASE IF NOT EXISTS catalog_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE catalog_db;
 
-CREATE TABLE IF NOT EXISTS users (
+-- Entidad 1: Cuentas y Operadores (accounts)
+DROP TABLE IF EXISTS accounts;
+CREATE TABLE accounts (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    role ENUM('admin', 'user') DEFAULT 'user',
-    is_active TINYINT(1) DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+    full_name VARCHAR(120) NOT NULL,
+    account_email VARCHAR(150) NOT NULL UNIQUE,
+    access_token VARCHAR(255) NOT NULL,
+    access_level ENUM('manager', 'staff') DEFAULT 'staff',
+    status TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Carga inicial con usuario administrador (Contraseña: Admin123!)
-INSERT INTO users (name, email, password, role, is_active)
-VALUES (
-    'Administrador',
-    'admin@example.com',
-    '$2y$10$e0MYzXyjpJS7Pd0RVvHwHeFjN.7rPrvJvK46dqbQzqJnW6Iq5xM2i',
-    'admin',
-    1
-) ON DUPLICATE KEY UPDATE id=id;
+-- Entidad 2: Artículos del Catálogo e Inventario (inventory_items)
+DROP TABLE IF EXISTS inventory_items;
+CREATE TABLE inventory_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sku VARCHAR(50) NOT NULL UNIQUE,
+    item_title VARCHAR(150) NOT NULL,
+    category VARCHAR(80) NOT NULL,
+    stock_qty INT DEFAULT 0,
+    unit_cost DECIMAL(10,2) NOT NULL,
+    is_available TINYINT(1) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
