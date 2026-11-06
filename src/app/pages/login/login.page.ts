@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonButton, LoadingController, ToastController } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonButton, LoadingController, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { NailApiService } from '../../services/nail-api.service';
 @Component({selector:'app-login',standalone:true,imports:[CommonModule,FormsModule,IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonButton],templateUrl:'./login.page.html',styleUrls:['./login.page.scss']})
