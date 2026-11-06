@@ -1,0 +1,47 @@
+<ion-header><ion-toolbar color="primary"><ion-title>✨ Nail Studio | Citas</ion-title></ion-toolbar></ion-header>
+<ion-content class="ion-padding">
+  <div class="ion-padding" *ngIf="offline || pendingCount" role="status" style="background:#fff0d7;color:#673f00;border-radius:10px;margin:8px 0">
+    {{offline ? 'Sin conexión: mostrando datos locales. Las reservas requieren Internet.' : 'Conexión disponible.'}}
+    <p *ngIf="pendingCount">{{pendingCount}} cambio(s) de notas pendiente(s).</p>
+    <ion-button size="small" (click)="synchronize()">Sincronizar ahora</ion-button>
+  </div>
+  <section *ngIf="screen==='services'">
+    <div class="hero"><h1>Un momento para ti 💅</h1><p>Elige tu estilo favorito y reserva tu próximo manicure.</p></div>
+    <h2>Nuestros servicios</h2>
+    <ion-card *ngFor="let s of services"><ion-card-header><ion-card-title>{{s.name}}</ion-card-title><ion-card-subtitle>{{s.duration_minutes}} minutos · {{s.price | currency:'MXN'}}</ion-card-subtitle></ion-card-header><ion-card-content><p>{{s.description}}</p><ion-button expand="block" (click)="openBooking(s)">Agendar este servicio</ion-button></ion-card-content></ion-card>
+    <p *ngIf="!services.length" class="ion-text-center">No hay servicios disponibles. Comprueba la conexión e intenta nuevamente.</p>
+    <ion-button fill="outline" expand="block" (click)="loadServices()">Actualizar servicios</ion-button>
+    <h2>Galería de inspiración 📷</h2>
+    <p>Agrega imágenes desde tu computadora o cámara. Son una vista previa local y no se suben al servidor.</p>
+    <ion-item><ion-input label="Descripción de foto" label-placement="stacked" [(ngModel)]="imageTitle"></ion-input></ion-item>
+    <input type="file" accept="image/*" (change)="pickImage($event)" aria-label="Seleccionar foto de uñas">
+    <ion-card *ngFor="let photo of fotos.fotos; let i=index">
+      <img [src]="photo.webviewPath" [alt]="photo.titulo" style="width:100%;max-height:250px;object-fit:cover">
+      <ion-card-content>{{photo.titulo}} <ion-button fill="clear" color="danger" (click)="fotos.eliminarFoto(i)">Eliminar</ion-button></ion-card-content>
+    </ion-card>
+  </section>
+  <section *ngIf="screen==='book'">
+    <h2>{{editingId ? 'Reprogramar cita' : 'Nueva cita'}}</h2>
+    <ion-item><ion-select label="Servicio" label-placement="stacked" [(ngModel)]="chosen"><ion-select-option *ngFor="let s of services" [value]="s.id">{{s.name}} · {{s.price | currency:'MXN'}}</ion-select-option></ion-select></ion-item>
+    <ion-item><ion-label position="stacked">Fecha</ion-label><ion-input type="date" [(ngModel)]="date"></ion-input></ion-item>
+    <ion-item><ion-label position="stacked">Hora (09:00 a 19:00)</ion-label><ion-input type="time" step="1800" [(ngModel)]="time"></ion-input></ion-item>
+    <ion-item><ion-textarea label="Notas o diseño deseado" label-placement="stacked" [(ngModel)]="notes" maxlength="500"></ion-textarea></ion-item>
+    <p *ngIf="selected" class="ion-padding">Duración: {{selected.duration_minutes}} minutos · Total estimado: {{selected.price | currency:'MXN'}}</p>
+    <ion-note>Disponibilidad sujeta a confirmación de la API. Horarios en bloques de 30 minutos.</ion-note>
+    <ion-button expand="block" [disabled]="busy" (click)="saveBooking()">{{editingId?'Guardar cambios':'Confirmar cita'}}</ion-button>
+  </section>
+  <section *ngIf="screen==='appointments'"><h2>Mis citas</h2><ion-button size="small" fill="outline" (click)="synchronize()">Sincronizar</ion-button>
+    <ion-card *ngFor="let a of appointments"><ion-card-header><ion-card-title>{{a.service_name}}</ion-card-title><ion-card-subtitle>{{a.start_at}} · {{a.price | currency:'MXN'}}</ion-card-subtitle></ion-card-header>
+      <ion-card-content><ion-badge [color]="a.status==='scheduled'?'success':'medium'">{{a.status==='scheduled'?'Agendada':a.status==='cancelled'?'Cancelada':'Finalizada'}}</ion-badge><p>{{a.notes || 'Sin notas'}}</p>
+      <div *ngIf="canEdit(a)"><ion-button size="small" (click)="edit(a)">Reprogramar (PUT)</ion-button><ion-button size="small" fill="outline" (click)="editNotes(a)">Notas (PATCH)</ion-button><ion-button size="small" color="danger" fill="outline" (click)="cancel(a)">Cancelar (DELETE)</ion-button></div>
+      </ion-card-content></ion-card>
+    <p *ngIf="!appointments.length">Aún no tienes citas. ¡Reserva tu primer servicio!</p>
+  </section>
+  <section *ngIf="screen==='profile'"><h2>Mi perfil</h2><p>{{user?.email}}</p><ion-item><ion-input label="Nombre" label-placement="stacked" [(ngModel)]="profileName"></ion-input></ion-item><ion-item><ion-input label="Teléfono" label-placement="stacked" [(ngModel)]="profilePhone" type="tel"></ion-input></ion-item><ion-button expand="block" (click)="saveProfile()">Guardar perfil (PATCH)</ion-button><ion-button expand="block" color="medium" fill="outline" (click)="logout()">Cerrar sesión</ion-button></section>
+</ion-content>
+<ion-footer><ion-toolbar><ion-segment [value]="screen" (ionChange)="switchScreen($any($event.detail.value))">
+<ion-segment-button value="services"><ion-label>Servicios</ion-label></ion-segment-button>
+<ion-segment-button value="book" (click)="openBooking()"><ion-label>Agendar</ion-label></ion-segment-button>
+<ion-segment-button value="appointments"><ion-label>Mis citas</ion-label></ion-segment-button>
+<ion-segment-button value="profile"><ion-label>Perfil</ion-label></ion-segment-button>
+</ion-segment></ion-toolbar></ion-footer>
