@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonItem, IonInput, IonLabel, IonTextarea, IonSelect, IonSelectOption, IonNote, IonBadge, IonFooter, IonSegment, IonSegmentButton, LoadingController, ToastController, AlertController } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonItem, IonInput, IonLabel, IonTextarea, IonSelect, IonSelectOption, IonNote, IonBadge, IonFooter, IonSegment, IonSegmentButton, LoadingController, ToastController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { NailApiService, NailService, Appointment } from '../../services/nail-api.service';
 
@@ -48,7 +48,7 @@ export class SalonPage implements OnInit {
   }
   private async confirmCancel(id:number) { const result=await this.run('Cancelando cita...',()=>this.api.cancel(id)); if(result) { await this.toast('Cita cancelada'); await this.loadAppointments(); } }
   async editNotes(a:Appointment) {
-    const alert=await this.alertCtrl.create({header:'Editar notas',inputs:[{name:'notes',type:'textarea',value:a.notes}],buttons:[{text:'Cerrar',role:'cancel'},{text:'Guardar',handler:(d)=>{void this.saveNotes(a.id,d.notes);}}]});await alert.present();
+    const alert=await this.alertCtrl.create({header:'Editar notas',inputs:[{name:'notes',type:'textarea',value:a.notes}],buttons:[{text:'Cerrar',role:'cancel'},{text:'Guardar',handler:(d: { notes: string })=>{void this.saveNotes(a.id,d.notes);}}]});await alert.present();
   }
   private async saveNotes(id:number,notes:string) { const result=await this.run('Guardando notas...',()=>this.api.editNotes(id,notes)); if(result) {await this.toast('Notas actualizadas'); await this.loadAppointments();} }
   async saveProfile() { const result=await this.run('Actualizando perfil...',()=>this.api.updateProfile(this.profileName,this.profilePhone).then(()=>true)); if(result) await this.toast('Perfil actualizado'); }
