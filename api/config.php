@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
-$allowed = array_filter(array_map('trim', explode(',', getenv('CORS_ORIGINS') ?: 'http://localhost:8100,http://localhost:4200')));
+$allowed = array_filter(array_map('trim', explode(',', getenv('CORS_ORIGINS') ?: 'http://localhost:8100,http://localhost:8101,http://localhost:4200')));
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $allowed, true)) { header('Access-Control-Allow-Origin: '.$origin); header('Vary: Origin'); }
 header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
