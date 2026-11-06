@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, LoadingController, ToastController, AlertController } from '@ionic/angular';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonItem, IonInput, IonLabel, IonTextarea, IonSelect, IonSelectOption, IonNote, IonBadge, IonFooter, IonSegment, IonSegmentButton, LoadingController, ToastController, AlertController } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { NailApiService, NailService, Appointment } from '../../services/nail-api.service';
 
-@Component({selector:'app-salon',standalone:true,imports:[CommonModule,FormsModule,IonicModule],
+@Component({selector:'app-salon',standalone:true,imports:[CommonModule,FormsModule,IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonItem, IonInput, IonLabel, IonTextarea, IonSelect, IonSelectOption, IonNote, IonBadge, IonFooter, IonSegment, IonSegmentButton],
 templateUrl:'./salon.page.html',styleUrls:['./salon.page.scss']})
 export class SalonPage implements OnInit {
   screen: 'services'|'book'|'appointments'|'profile' = 'services';
