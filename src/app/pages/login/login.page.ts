@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, LoadingController, ToastController } from '@ionic/angular';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonButton, LoadingController, ToastController } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { NailApiService } from '../../services/nail-api.service';
-@Component({selector:'app-login',standalone:true,imports:[CommonModule,FormsModule,IonicModule],templateUrl:'./login.page.html',styleUrls:['./login.page.scss']})
+@Component({selector:'app-login',standalone:true,imports:[CommonModule,FormsModule,IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonButton],templateUrl:'./login.page.html',styleUrls:['./login.page.scss']})
 export class LoginPage {
   name=''; phone=''; email=''; password=''; registerMode=false; busy=false;
   constructor(private api:NailApiService,private router:Router,private loaderCtrl:LoadingController,private toastCtrl:ToastController){}
