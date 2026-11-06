@@ -11,6 +11,48 @@ export class NailApiService {
   private readonly http: AxiosInstance = axios.create({ timeout: 12000 });
   private token = sessionStorage.getItem('nail_token') || '';
   user: SalonUser | null = this.restoreUser();
+  /** Las lecturas se guardan en caché por usuario; las reservas NUNCA se crean offline. */
+  private cacheKey(type: string): string { return 'nail_v2_' + type + '_' + (this.user?.id ?? 'public'); }
+  private readCache<T>(type: string): T[] {
+    try { return JSON.parse(localStorage.getItem(this.cacheKey(type)) || '[]') as T[]; }
+    catch { return []; }
+  }
+  private writeCache<T>(type: string, data: T[]): void {
+    try { localStorage.setItem(this.cacheKey(type), JSON.stringify(data)); } catch { /* almacenamiento lleno/bloqueado */ }
+  }
+  cachedServices(): NailService[] { return this.readCache<NailService>('services'); }
+  cachedAppointments(): Appointment[] { return this.readCache<Appointment>('appointments'); }
+  private pendingKey(): string { return this.cacheKey('pending_notes'); }
+  pendingNotes(): Array<{id:number;notes:string}> {
+    try { return JSON.parse(localStorage.getItem(this.pendingKey()) || '[]'); }
+    catch { return []; }
+  }
+  async saveNotesOffline(id:number,notes:string): Promise<'sent'|'queued'> {
+    try {
+      await this.editNotes(id,notes);
+      return 'sent';
+    } catch (error) {
+      if (!axios.isAxiosError(error) || error.response) throw error;
+      const pending=this.pendingNotes().filter(item=>item.id!==id);
+      pending.push({id,notes});
+      localStorage.setItem(this.pendingKey(),JSON.stringify(pending));
+      const copy=this.cachedAppointments();
+      this.writeCache('appointments',copy.map(a=>a.id===id?{...a,notes}:a));
+      return 'queued';
+    }
+  }
+  async syncPending(): Promise<{sent:number;remaining:number}> {
+    if(!this.user) return {sent:0,remaining:0};
+    const pending=this.pendingNotes();
+    let sent=0;
+    const remaining: typeof pending=[];
+    for (const item of pending) {
+      try { await this.editNotes(item.id,item.notes); sent++; }
+      catch { remaining.push(item); }
+    }
+    localStorage.setItem(this.pendingKey(),JSON.stringify(remaining));
+    return {sent,remaining:remaining.length};
+  }
   private restoreUser(): SalonUser | null {
     try { return JSON.parse(sessionStorage.getItem('nail_user') || 'null'); } catch { return null; }
   }
@@ -38,10 +80,10 @@ export class NailApiService {
     finally { this.token=''; this.user=null; sessionStorage.removeItem('nail_token'); sessionStorage.removeItem('nail_user'); }
   }
   async services(): Promise<NailService[]> {
-    const r=await this.http.get<Envelope<NailService[]>>(this.url('services')); return r.data.data;
+    const r=await this.http.get<Envelope<NailService[]>>(this.url('services')); this.writeCache('services',r.data.data); return r.data.data;
   }
   async appointments(): Promise<Appointment[]> {
-    const r=await this.http.get<Envelope<Appointment[]>>(this.url('appointments'),this.config()); return r.data.data;
+    const r=await this.http.get<Envelope<Appointment[]>>(this.url('appointments'),this.config()); this.writeCache('appointments',r.data.data); return r.data.data;
   }
   async book(data:{service_id:number;start_at:string;notes:string}) {
     const r=await this.http.post(this.url('appointments'),data,this.config()); return r.data;

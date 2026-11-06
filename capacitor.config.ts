@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
-  appId: "io.ionic.demo.pg.cap.ng",
-  appName: "Photo Gallery Cap Ng",
+  appId: "mx.nailstudio.citas",
+  appName: "Nail Studio",
   npmClient: "npm",
   webDir: "www",
 };
