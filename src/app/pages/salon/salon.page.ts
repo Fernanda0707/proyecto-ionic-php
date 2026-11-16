@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonItem, IonInput, IonLabel, IonTextarea, IonSelect, IonSelectOption, IonNote, IonBadge, IonFooter, IonSegment, IonSegmentButton, LoadingController, ToastController, AlertController } from '@ionic/angular';
@@ -14,11 +14,12 @@ export class SalonPage implements OnInit {
   services: NailService[]=[]; appointments: Appointment[]=[];
   chosen=0; date=''; time=''; notes=''; editingId:number|null=null;
   busy=false; profileName=''; profilePhone=''; offline=false; imageTitle='Diseño de uñas';
-  position: UbicacionActual | null = null;
-  locationError = '';
-  locating = false;
-  get mapUrl(): string { return this.position ? this.geo.enlaceMapa(this.position) : ''; }
-  get nearbyUrl(): string { return this.position ? this.geo.enlaceSalonesCercanos(this.position) : ''; }
+  // Signals actualizan la pantalla incluso desde callbacks externos a Angular (GPS/navegador).
+  readonly position = signal<UbicacionActual | null>(null);
+  readonly locationError = signal('');
+  readonly locating = signal(false);
+  get mapUrl(): string { const position = this.position(); return position ? this.geo.enlaceMapa(position) : ''; }
+  get nearbyUrl(): string { const position = this.position(); return position ? this.geo.enlaceSalonesCercanos(position) : ''; }
   get pendingCount() { return this.api.pendingNotes().length; }
   get user() { return this.api.user; }
   get selected() { return this.services.find(s=>s.id===Number(this.chosen)); }
@@ -70,21 +71,22 @@ export class SalonPage implements OnInit {
     input.value='';
   }
   async findLocation() {
-    if (this.locating) return;
-    this.locating = true;
-    this.position = null;
-    this.locationError = '';
+    if (this.locating()) return;
+    this.locating.set(true);
+    this.position.set(null);
+    this.locationError.set('');
     try {
-      this.position = await this.geo.obtenerUbicacion();
+      const position = await this.geo.obtenerUbicacion();
+      this.position.set(position);
     } catch (error) {
-      this.locationError = this.geo.mensajeError(error);
+      this.locationError.set(this.geo.mensajeError(error));
     } finally {
-      this.locating = false;
+      this.locating.set(false);
     }
   }
   clearLocation() {
-    this.position = null;
-    this.locationError = '';
+    this.position.set(null);
+    this.locationError.set('');
   }
   openBooking(service?:NailService) {
     if(!this.user) { this.router.navigateByUrl('/login'); return; }
