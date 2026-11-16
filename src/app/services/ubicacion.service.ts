@@ -49,7 +49,7 @@ export class UbicacionService {
     const limite = new Promise<never>((_resolve, reject) => {
       temporizador = setTimeout(() => reject(new Error('Tiempo de espera agotado al obtener ubicación.')), 18000);
     });
-    let resultado: GeolocationPosition;
+    let resultado: Awaited<typeof tarea>;
     try {
       resultado = await Promise.race([tarea, limite]);
     } finally {
