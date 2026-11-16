@@ -64,11 +64,33 @@
     </ion-card>
     <ion-note>Para navegador: HTTPS o localhost. En Android: acepta el permiso cuando aparezca el diálogo. Abrir Google Maps comparte las coordenadas con ese servicio.</ion-note>
   </section>
+  <section *ngIf="screen==='location'">
+    <div class="hero"><h1>📍 Tu ubicación</h1><p>Obtén tu posición y busca salones de uñas cercanos.</p></div>
+    <ion-card><ion-card-header><ion-card-title>Geolocalización real</ion-card-title></ion-card-header>
+      <ion-card-content>
+        <p>Solicitamos tu ubicación únicamente cuando pulses el botón. No la almacenamos ni enviamos a nuestra API.</p>
+        <ion-button expand="block" [disabled]="locating" (click)="findLocation()">{{locating ? 'Obteniendo ubicación...' : 'Permitir y obtener mi ubicación'}}</ion-button>
+        <p *ngIf="locating" role="status">Consultando la ubicación del dispositivo…</p>
+        <p *ngIf="locationError" role="alert" class="location-error">{{locationError}}</p>
+        <div *ngIf="position as p" class="location-results">
+          <p><strong>Latitud:</strong> {{p.latitud | number:'1.6-6'}}</p>
+          <p><strong>Longitud:</strong> {{p.longitud | number:'1.6-6'}}</p>
+          <p><strong>Precisión aproximada:</strong> {{p.precisionMetros | number:'1.0-0'}} metros</p>
+          <p><strong>Fecha:</strong> {{p.fecha | date:'short'}}</p>
+          <a [href]="mapUrl" target="_blank" rel="noopener noreferrer" class="location-link">Ver mi posición en Google Maps</a>
+          <a [href]="nearbyUrl" target="_blank" rel="noopener noreferrer" class="location-link">Buscar salones de uñas cercanos</a>
+          <ion-button fill="clear" color="medium" (click)="clearLocation()">Borrar coordenadas de la pantalla</ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+    <ion-note>En el navegador se requiere HTTPS o localhost. Abrir Maps comparte tu ubicación con Google.</ion-note>
+  </section>
   <section *ngIf="screen==='profile'"><h2>Mi perfil</h2><p>{{user?.email}}</p><ion-item><ion-input label="Nombre" label-placement="stacked" [(ngModel)]="profileName"></ion-input></ion-item><ion-item><ion-input label="Teléfono" label-placement="stacked" [(ngModel)]="profilePhone" type="tel"></ion-input></ion-item><ion-button expand="block" (click)="saveProfile()">Guardar perfil (PATCH)</ion-button><ion-button expand="block" color="medium" fill="outline" (click)="logout()">Cerrar sesión</ion-button></section>
 </ion-content>
 <ion-footer><ion-toolbar><ion-segment [value]="screen" (ionChange)="switchScreen($any($event.detail.value))">
 <ion-segment-button value="services"><ion-label>Servicios</ion-label></ion-segment-button>
 <ion-segment-button value="book" (click)="openBooking()"><ion-label>Agendar</ion-label></ion-segment-button>
 <ion-segment-button value="appointments"><ion-label>Mis citas</ion-label></ion-segment-button>
+<ion-segment-button value="location"><ion-label>Ubicación</ion-label></ion-segment-button>
 <ion-segment-button value="profile"><ion-label>Perfil</ion-label></ion-segment-button>
 </ion-segment></ion-toolbar></ion-footer>
