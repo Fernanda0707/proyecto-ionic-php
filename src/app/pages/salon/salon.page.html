@@ -46,12 +46,12 @@
       <ion-card-header><ion-card-title>Geolocalización real</ion-card-title></ion-card-header>
       <ion-card-content>
         <p>Solo solicitamos tu ubicación cuando presionas el botón. No guardamos tus coordenadas ni las enviamos a nuestro servidor.</p>
-        <ion-button expand="block" [disabled]="locating" (click)="findLocation()">
-          {{locating ? 'Obteniendo ubicación…' : 'Permitir y obtener mi ubicación'}}
+        <ion-button expand="block" [disabled]="locating()" (click)="findLocation()">
+          {{locating() ? 'Obteniendo ubicación…' : 'Permitir y obtener mi ubicación'}}
         </ion-button>
-        <p *ngIf="locating" role="status">Consultando GPS. Comprueba que la ubicación del dispositivo esté activada.</p>
-        <p *ngIf="locationError" role="alert" class="location-error">{{locationError}}</p>
-        <div *ngIf="position as p" class="location-results">
+        <p *ngIf="locating()" role="status">Consultando GPS. Comprueba que la ubicación del dispositivo esté activada.</p>
+        <p *ngIf="locationError()" role="alert" class="location-error">{{locationError()}}</p>
+        <div *ngIf="position() as p" class="location-results">
           <p><strong>Latitud:</strong> {{p.latitud | number:'1.6-6'}}</p>
           <p><strong>Longitud:</strong> {{p.longitud | number:'1.6-6'}}</p>
           <p><strong>Precisión aproximada:</strong> {{p.precisionMetros | number:'1.0-0'}} metros</p>
