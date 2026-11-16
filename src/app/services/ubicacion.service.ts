@@ -28,11 +28,33 @@ export class UbicacionService {
       }
     }
 
-    const resultado = await Geolocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 15000,
-      maximumAge: 0
+    // En la web usamos la API del navegador directamente, con timeout real.
+    // Algunos navegadores pueden dejar pendiente la promesa del plugin cuando no
+    // está habilitado el proveedor de ubicación del sistema operativo.
+    const tarea = Capacitor.isNativePlatform()
+      ? Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 15000, maximumAge: 0 })
+      : new Promise<GeolocationPosition>((resolve, reject) => {
+          if (!navigator.geolocation) {
+            reject(new Error('Este navegador no admite geolocalización.'));
+            return;
+          }
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: false,
+            timeout: 12000,
+            maximumAge: 0
+          });
+        });
+
+    let temporizador: ReturnType<typeof setTimeout> | undefined;
+    const limite = new Promise<never>((_resolve, reject) => {
+      temporizador = setTimeout(() => reject(new Error('Tiempo de espera agotado al obtener ubicación.')), 18000);
     });
+    let resultado: GeolocationPosition;
+    try {
+      resultado = await Promise.race([tarea, limite]);
+    } finally {
+      if (temporizador) clearTimeout(temporizador);
+    }
 
     return {
       latitud: resultado.coords.latitude,
@@ -51,7 +73,7 @@ export class UbicacionService {
     if (codigo === '2' || codigo === 'OS-PLUG-GLOC-0007' || codigo === 'OS-PLUG-GLOC-0017' || /disabled|apagada|unavailable/i.test(mensaje)) {
       return 'No se pudo determinar tu ubicación. Activa la ubicación/GPS del dispositivo e intenta nuevamente.';
     }
-    if (codigo === '3' || codigo === 'OS-PLUG-GLOC-0010' || /timeout|time out/i.test(mensaje)) {
+    if (codigo === '3' || codigo === 'OS-PLUG-GLOC-0010' || /timeout|time out|tiempo de espera/i.test(mensaje)) {
       return 'Se agotó el tiempo de espera. Activa el GPS, mejora la señal y vuelve a intentar.';
     }
     return mensaje || 'Ocurrió un error al consultar la ubicación.';
