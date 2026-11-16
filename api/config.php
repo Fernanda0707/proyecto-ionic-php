@@ -3,7 +3,11 @@ declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 $allowed = array_filter(array_map('trim', explode(',', getenv('CORS_ORIGINS') ?: 'http://localhost:8100,http://localhost:8101,http://localhost:4200')));
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if (in_array($origin, $allowed, true)) { header('Access-Control-Allow-Origin: '.$origin); header('Vary: Origin'); }
+// Durante desarrollo Ionic puede cambiar de 8100 a 8101, 8102, etc.
+// Solo aceptamos localhost/127.0.0.1 en puertos arbitrarios si se usa el valor predeterminado.
+// En producción configurar CORS_ORIGINS con los orígenes HTTPS exactos.
+$localDevOrigin = !getenv('CORS_ORIGINS') && preg_match('~^http://(?:localhost|127\\.0\\.0\\.1):[0-9]{2,5}$~', $origin);
+if (in_array($origin, $allowed, true) || $localDevOrigin) { header('Access-Control-Allow-Origin: '.$origin); header('Vary: Origin'); }
 header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Cache-Control: no-store');
