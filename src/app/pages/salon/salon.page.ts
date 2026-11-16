@@ -4,19 +4,25 @@ import { FormsModule } from '@angular/forms';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonItem, IonInput, IonLabel, IonTextarea, IonSelect, IonSelectOption, IonNote, IonBadge, IonFooter, IonSegment, IonSegmentButton, LoadingController, ToastController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { FotoService } from '../../services/foto.service';
+import { UbicacionService, UbicacionActual } from '../../services/ubicacion.service';
 import { NailApiService, NailService, Appointment } from '../../services/nail-api.service';
 
 @Component({selector:'app-salon',standalone:true,imports:[CommonModule,FormsModule,IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonItem, IonInput, IonLabel, IonTextarea, IonSelect, IonSelectOption, IonNote, IonBadge, IonFooter, IonSegment, IonSegmentButton],
 templateUrl:'./salon.page.html',styleUrls:['./salon.page.scss']})
 export class SalonPage implements OnInit {
-  screen: 'services'|'book'|'appointments'|'profile' = 'services';
+  screen: 'services'|'book'|'appointments'|'profile'|'location' = 'services';
   services: NailService[]=[]; appointments: Appointment[]=[];
   chosen=0; date=''; time=''; notes=''; editingId:number|null=null;
   busy=false; profileName=''; profilePhone=''; offline=false; imageTitle='Diseño de uñas';
+  position: UbicacionActual | null = null;
+  locationError = '';
+  locating = false;
+  get mapUrl(): string { return this.position ? this.geo.enlaceMapa(this.position) : ''; }
+  get nearbyUrl(): string { return this.position ? this.geo.enlaceSalonesCercanos(this.position) : ''; }
   get pendingCount() { return this.api.pendingNotes().length; }
   get user() { return this.api.user; }
   get selected() { return this.services.find(s=>s.id===Number(this.chosen)); }
-  constructor(public api:NailApiService,private router:Router,private loadingCtrl:LoadingController,private toastCtrl:ToastController,private alertCtrl:AlertController,public fotos:FotoService) {}
+  constructor(public api:NailApiService,private router:Router,private loadingCtrl:LoadingController,private toastCtrl:ToastController,private alertCtrl:AlertController,public fotos:FotoService,public geo:UbicacionService) {}
   async ngOnInit() {
     this.profileName=this.user?.name||''; this.profilePhone=this.user?.phone||'';
     await this.loadServices(); if(this.user) await this.loadAppointments();
@@ -63,6 +69,23 @@ export class SalonPage implements OnInit {
     await this.fotos.agregarFotoDesdeArchivo(file,this.imageTitle);
     input.value='';
   }
+  async findLocation() {
+    if (this.locating) return;
+    this.locating = true;
+    this.position = null;
+    this.locationError = '';
+    try {
+      this.position = await this.geo.obtenerUbicacion();
+    } catch (error) {
+      this.locationError = this.geo.mensajeError(error);
+    } finally {
+      this.locating = false;
+    }
+  }
+  clearLocation() {
+    this.position = null;
+    this.locationError = '';
+  }
   openBooking(service?:NailService) {
     if(!this.user) { this.router.navigateByUrl('/login'); return; }
     this.editingId=null; this.chosen=service?.id||this.services[0]?.id||0; this.date=''; this.time=''; this.notes=''; this.screen='book';
@@ -95,6 +118,6 @@ export class SalonPage implements OnInit {
   }
   async saveProfile() { const result=await this.run('Actualizando perfil...',()=>this.api.updateProfile(this.profileName,this.profilePhone).then(()=>true)); if(result) await this.toast('Perfil actualizado'); }
   async logout() { await this.run('Cerrando sesión...',()=>this.api.logout()); await this.router.navigateByUrl('/login'); }
-  async switchScreen(next:'services'|'book'|'appointments'|'profile') { this.screen=next; if(next==='appointments') await this.loadAppointments(); }
+  async switchScreen(next:'services'|'book'|'appointments'|'profile'|'location') { this.screen=next; if(next==='appointments') await this.loadAppointments(); }
   canEdit(a:Appointment) { return a.status==='scheduled' && new Date(a.start_at.replace(' ','T')).getTime()>Date.now(); }
 }

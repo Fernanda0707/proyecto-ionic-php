@@ -41,3 +41,11 @@ El APK actual usa `http://localhost:8000/nails.php`: en el dispositivo **localho
 2. Entrar a Mis citas, detener PHP, editar **notas**: aparece cola pendiente; reiniciar PHP, pulsar Sincronizar, verificar MySQL y recargar.
 3. Con PHP activo crear (POST), reprogramar (PUT), cambiar notas (PATCH), cancelar (DELETE) una cita.
 4. Elegir imagen JPG/PNG menor de 2 MB; mostrar vista previa y eliminarla.
+
+## Módulo de geolocalización (siguiente entrega)
+- Sección **Ubicación**: el botón solicita permiso explícito, lee latitud, longitud, precisión y fecha, y permite abrir Maps o buscar salones cercanos.
+- Plugin: `@capacitor/geolocation` (Capacitor 8); en web el navegador gestiona el permiso, en Android lo solicita Capacitor.
+- `android/app/src/main/AndroidManifest.xml` declara ACCESS_COARSE_LOCATION y ACCESS_FINE_LOCATION. No se rastrea en segundo plano ni se sube ubicación a la API.
+- Errores tratados: permiso denegado, GPS apagado, ubicación no disponible, tiempo agotado y origen web inseguro.
+- Guía de pruebas y grabación: `docs/GEOLOCALIZACION_Y_EVIDENCIAS.md`.
+- **Importante:** después de hacer git pull ejecuta `npm install` (actualiza package-lock si hace falta), `npm run build` y `npx cap sync android`. La ejecución GPS real y capturas deben realizarse en dispositivo; no se simulan.

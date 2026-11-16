@@ -37,6 +37,33 @@
       </ion-card-content></ion-card>
     <p *ngIf="!appointments.length">Aún no tienes citas. ¡Reserva tu primer servicio!</p>
   </section>
+  <section *ngIf="screen==='location'">
+    <div class="hero">
+      <h1>📍 Tu ubicación</h1>
+      <p>Consulta dónde estás y encuentra salones de uñas cercanos para planear tu visita.</p>
+    </div>
+    <ion-card>
+      <ion-card-header><ion-card-title>Geolocalización real</ion-card-title></ion-card-header>
+      <ion-card-content>
+        <p>Solo solicitamos tu ubicación cuando presionas el botón. No guardamos tus coordenadas ni las enviamos a nuestro servidor.</p>
+        <ion-button expand="block" [disabled]="locating" (click)="findLocation()">
+          {{locating ? 'Obteniendo ubicación…' : 'Permitir y obtener mi ubicación'}}
+        </ion-button>
+        <p *ngIf="locating" role="status">Consultando GPS. Comprueba que la ubicación del dispositivo esté activada.</p>
+        <p *ngIf="locationError" role="alert" class="location-error">{{locationError}}</p>
+        <div *ngIf="position as p" class="location-results">
+          <p><strong>Latitud:</strong> {{p.latitud | number:'1.6-6'}}</p>
+          <p><strong>Longitud:</strong> {{p.longitud | number:'1.6-6'}}</p>
+          <p><strong>Precisión aproximada:</strong> {{p.precisionMetros | number:'1.0-0'}} metros</p>
+          <p><strong>Obtenida:</strong> {{p.fecha | date:'short'}}</p>
+          <a [href]="mapUrl" target="_blank" rel="noopener noreferrer" class="location-link">Ver mi posición en Google Maps</a>
+          <a [href]="nearbyUrl" target="_blank" rel="noopener noreferrer" class="location-link">Buscar salones de uñas cercanos</a>
+          <ion-button fill="clear" color="medium" size="small" (click)="clearLocation()">Borrar coordenadas de la pantalla</ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+    <ion-note>Para navegador: HTTPS o localhost. En Android: acepta el permiso cuando aparezca el diálogo. Abrir Google Maps comparte las coordenadas con ese servicio.</ion-note>
+  </section>
   <section *ngIf="screen==='profile'"><h2>Mi perfil</h2><p>{{user?.email}}</p><ion-item><ion-input label="Nombre" label-placement="stacked" [(ngModel)]="profileName"></ion-input></ion-item><ion-item><ion-input label="Teléfono" label-placement="stacked" [(ngModel)]="profilePhone" type="tel"></ion-input></ion-item><ion-button expand="block" (click)="saveProfile()">Guardar perfil (PATCH)</ion-button><ion-button expand="block" color="medium" fill="outline" (click)="logout()">Cerrar sesión</ion-button></section>
 </ion-content>
 <ion-footer><ion-toolbar><ion-segment [value]="screen" (ionChange)="switchScreen($any($event.detail.value))">
