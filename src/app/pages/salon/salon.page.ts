@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonItem, IonInput, IonLabel, IonTextarea, IonSelect, IonSelectOption, IonNote, IonBadge, IonFooter, IonSegment, IonSegmentButton, LoadingController, ToastController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { FotoService } from '../../services/foto.service';
+import { EstadoRedService } from '../../services/estado-red.service';
 import { UbicacionService, UbicacionActual } from '../../services/ubicacion.service';
 import { NailApiService, NailService, Appointment } from '../../services/nail-api.service';
 
@@ -23,7 +24,7 @@ export class SalonPage implements OnInit {
   get pendingCount() { return this.api.pendingNotes().length; }
   get user() { return this.api.user; }
   get selected() { return this.services.find(s=>s.id===Number(this.chosen)); }
-  constructor(public api:NailApiService,private router:Router,private loadingCtrl:LoadingController,private toastCtrl:ToastController,private alertCtrl:AlertController,public fotos:FotoService,public geo:UbicacionService) {}
+  constructor(public api:NailApiService,private router:Router,private loadingCtrl:LoadingController,private toastCtrl:ToastController,private alertCtrl:AlertController,public fotos:FotoService,public geo:UbicacionService,public red:EstadoRedService) {}
   async ngOnInit() {
     this.profileName=this.user?.name||''; this.profilePhone=this.user?.phone||'';
     await this.loadServices(); if(this.user) await this.loadAppointments();

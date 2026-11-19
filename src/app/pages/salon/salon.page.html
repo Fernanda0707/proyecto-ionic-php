@@ -64,6 +64,27 @@
     </ion-card>
     <ion-note>Para navegador: HTTPS o localhost. En Android: acepta el permiso cuando aparezca el diálogo. Abrir Google Maps comparte las coordenadas con ese servicio.</ion-note>
   </section>
+  <section *ngIf="screen==='location'" class="red-panel">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>📶 Sensor de conectividad de red</ion-card-title>
+        <ion-card-subtitle>Capacidad física mediante Web APIs</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Estado detectado por el navegador:</p>
+        <ion-badge [color]="red.conectado() ? 'success' : 'danger'">
+          {{red.conectado() ? 'Conectado a una red' : 'Sin conexión de red'}}
+        </ion-badge>
+        <p><strong>Última lectura:</strong> {{red.ultimaLectura() | date:'mediumTime'}}</p>
+        <p class="red-explanation">Los eventos <code>online</code> y <code>offline</code> actualizan estos datos automáticamente.
+           Estar conectado a una red no garantiza acceso a Internet ni a la API PHP.</p>
+        <ion-button fill="outline" expand="block" (click)="red.actualizar()">Comprobar estado de red</ion-button>
+        <h3>Últimos eventos</h3>
+        <p *ngIf="red.historial().length===0">Todavía no hay cambios registrados. Desactiva y activa la conexión del dispositivo.</p>
+        <p *ngFor="let evento of red.historial()">{{evento}}</p>
+      </ion-card-content>
+    </ion-card>
+  </section>
   <section *ngIf="screen==='profile'"><h2>Mi perfil</h2><p>{{user?.email}}</p><ion-item><ion-input label="Nombre" label-placement="stacked" [(ngModel)]="profileName"></ion-input></ion-item><ion-item><ion-input label="Teléfono" label-placement="stacked" [(ngModel)]="profilePhone" type="tel"></ion-input></ion-item><ion-button expand="block" (click)="saveProfile()">Guardar perfil (PATCH)</ion-button><ion-button expand="block" color="medium" fill="outline" (click)="logout()">Cerrar sesión</ion-button></section>
 </ion-content>
 <ion-footer><ion-toolbar><ion-segment [value]="screen" (ionChange)="switchScreen($any($event.detail.value))">
