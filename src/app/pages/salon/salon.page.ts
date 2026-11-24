@@ -1,10 +1,11 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonItem, IonInput, IonLabel, IonTextarea, IonSelect, IonSelectOption, IonNote, IonBadge, IonFooter, IonSegment, IonSegmentButton, LoadingController, ToastController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { FotoService } from '../../services/foto.service';
 import { EstadoRedService } from '../../services/estado-red.service';
+import { evaluarContexto } from '../../services/reglas-contexto';
 import { UbicacionService, UbicacionActual } from '../../services/ubicacion.service';
 import { NailApiService, NailService, Appointment } from '../../services/nail-api.service';
 
@@ -19,6 +20,21 @@ export class SalonPage implements OnInit {
   readonly position = signal<UbicacionActual | null>(null);
   readonly locationError = signal('');
   readonly locating = signal(false);
+  readonly escenario = signal<'real'|'r1'|'r2'|'r3'>('real');
+  readonly decisionReal = computed(() => evaluarContexto({
+    tieneUbicacion: this.position() !== null, tieneRed: this.red.conectado()
+  }));
+  readonly decisionVisible = computed(() => {
+    const e = this.escenario();
+    if (e === 'r1') return evaluarContexto({tieneUbicacion:true,tieneRed:true});
+    if (e === 'r2') return evaluarContexto({tieneUbicacion:true,tieneRed:false});
+    if (e === 'r3') return evaluarContexto({tieneUbicacion:false,tieneRed:true});
+    return this.decisionReal();
+  });
+  elegirEscenario(value: string): void {
+    if (value === 'real' || value === 'r1' || value === 'r2' || value === 'r3')
+      this.escenario.set(value);
+  }
   get mapUrl(): string { const position = this.position(); return position ? this.geo.enlaceMapa(position) : ''; }
   get nearbyUrl(): string { const position = this.position(); return position ? this.geo.enlaceSalonesCercanos(position) : ''; }
   get pendingCount() { return this.api.pendingNotes().length; }

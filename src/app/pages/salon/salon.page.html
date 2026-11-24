@@ -56,8 +56,11 @@
           <p><strong>Longitud:</strong> {{p.longitud | number:'1.6-6'}}</p>
           <p><strong>Precisión aproximada:</strong> {{p.precisionMetros | number:'1.0-0'}} metros</p>
           <p><strong>Obtenida:</strong> {{p.fecha | date:'short'}}</p>
+          <ng-container *ngIf="decisionReal().permiteMapas">
           <a [href]="mapUrl" target="_blank" rel="noopener noreferrer" class="location-link">Ver mi posición en Google Maps</a>
           <a [href]="nearbyUrl" target="_blank" rel="noopener noreferrer" class="location-link">Buscar salones de uñas cercanos</a>
+          </ng-container>
+          <p *ngIf="!decisionReal().permiteMapas" class="context-advice">{{decisionReal().mensaje}}</p>
           <ion-button fill="clear" color="medium" size="small" (click)="clearLocation()">Borrar coordenadas de la pantalla</ion-button>
         </div>
       </ion-card-content>
@@ -82,6 +85,31 @@
         <h3>Últimos eventos</h3>
         <p *ngIf="red.historial().length===0">Todavía no hay cambios registrados. Desactiva y activa la conexión del dispositivo.</p>
         <p *ngFor="let evento of red.historial()">{{evento}}</p>
+      </ion-card-content>
+    </ion-card>
+  </section>
+  <section *ngIf="screen==='location'" class="context-panel">
+    <ion-card>
+      <ion-card-header><ion-card-title>🧠 Reglas de contexto</ion-card-title>
+        <ion-card-subtitle>Variables: ubicación y red</ion-card-subtitle></ion-card-header>
+      <ion-card-content>
+        <p><strong>Lectura real:</strong> Ubicación {{position() ? 'disponible' : 'no disponible'}} · Red {{red.conectado() ? 'detectada' : 'no detectada'}}</p>
+        <p>Selecciona una prueba. Las simulaciones afectan solo este panel, no alteran el GPS ni habilitan enlaces reales.</p>
+        <ion-item>
+          <ion-select label="Escenario" label-placement="stacked" [value]="escenario()" (ionChange)="elegirEscenario($event.detail.value)">
+            <ion-select-option value="real">Contexto real del dispositivo</ion-select-option>
+            <ion-select-option value="r1">Escenario 1: GPS y red</ion-select-option>
+            <ion-select-option value="r2">Escenario 2: GPS sin red</ion-select-option>
+            <ion-select-option value="r3">Escenario 3: sin GPS con red</ion-select-option>
+          </ion-select>
+        </ion-item>
+        <div class="context-result" role="status">
+          <ion-badge color="primary">{{decisionVisible().regla}}</ion-badge>
+          <h3>{{decisionVisible().titulo}}</h3>
+          <p>{{decisionVisible().descripcion}}</p>
+          <p><strong>Enlaces de mapas:</strong> {{decisionVisible().permiteMapas ? 'Habilitados' : 'Deshabilitados'}}</p>
+          <p>{{decisionVisible().mensaje}}</p>
+        </div>
       </ion-card-content>
     </ion-card>
   </section>
